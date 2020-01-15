@@ -97,11 +97,13 @@ VdW = sWs
 VdB = sBs
 
 compareplot(np.log10(cs), [VW, QW, [VdW for i in cs], [QdW for i in cs],[[W10] for i in cs]],
-            ["V_indirect", "Q_indirect", "V_direct", "Q_direct","True W"], ["b", "orange", "lightblue", "navajowhite", "red"],
+            ["V_indirect", "Q_indirect", "V_direct", "Q_direct","True W"],
+            ["b", "orange", "lightblue", "navajowhite", "red"],
             title="Random_MDP(10,4,6) 1000 episodes", xlabel="log 10 c", ylabel="error in W", ylim=None)
 
 compareplot(np.log10(cs), [VB, QB, [VdB for i in cs], [QdB for i in cs],[[B10] for i in cs]],
-            ["V_indirect", "Q_indirect", "V_direct", "Q_direct","True B"], ["b", "orange", "lightblue", "navajowhite", "red"],
+            ["V_indirect", "Q_indirect", "V_direct", "Q_direct","True B"],
+            ["b", "orange", "lightblue", "navajowhite", "red"],
             title="Random_MDP(10,4,6) 1000 episodes", xlabel="log 10 c", ylabel="error in B", ylim=None)
 
 
@@ -412,12 +414,12 @@ for e in episodes:
     VW.append(sWs)
     VB.append(sBs)
 
-compareplot(episodes, [VW, QW, probW, [[W50] for i in episodes]],
-            ["V", "Q", "Prob","True W"], ["b", "orange", "k","red"],
+compareplot(episodes, [VW, QW, probW ],
+            ["V", "Q", "Prob"], ["b", "orange", "k"],
             title="Random_MDP(50,4,46) alpha decay 10", xlabel="episodes", ylabel="error in W", ylim=None)
 
-compareplot(episodes, [VB, QB, probB, [[B50] for i in episodes]],
-            ["V", "Q", "Prob","True B"], ["b", "orange", "k","red"],
+compareplot(episodes, [VB, QB, probB],
+            ["V", "Q", "Prob"], ["b", "orange", "k"],
             title="Random_MDP(50,4,46) alpha decay 10", xlabel="episodes", ylabel="error in B", ylim=None)
 
 

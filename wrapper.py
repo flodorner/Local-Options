@@ -84,7 +84,10 @@ class partial_env_A_multireward:
 
 class partial_env_B:
     def __init__(self, env, entries, exits, value_map, actions, gamma=0.99, entry_distribution=None):
-        # Value map gets the Qs for the entry states and an index i and returns the ith entry of (the operator F applied to the entry Qs). Theoretically, this might be doable by a neural net that maps states to affine functions and applies them to the Qs, instead.
+        # Value map gets the Qs for the entry states and an index i and returns the ith entry of
+        # the operator F applied to the entry Qs.
+        # Theoretically, this might be doable by a neural net
+        # that maps states to affine functions and applies them to the Qs, instead.
 
         self.env = env
 

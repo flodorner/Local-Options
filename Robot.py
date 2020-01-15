@@ -5,7 +5,7 @@ from agents import policy_agent_deterministic
 from algorithms import Tabular_q, SARSA, learn_matrices, Tdzero
 from environments import robot
 from functions import Multi_Qs_to_F, Qs_to_policy
-from misc import compareplot
+from misc import compareplot, compareplot_Q
 from wrapper import partial_env_A_multireward, partial_env_B
 
 N = 100
@@ -44,12 +44,12 @@ for e in epsnum:
     Q3.append(Q3_temp)
     epslen.append(epslen_temp)
 
-compareplot(np.log10(epsnum), [Q0, Q1, Q2, Q3],
+compareplot_Q(np.log10(epsnum), [Q0, Q1, Q2, Q3],
             ["Action 0", "Action 1", "Action 2", "Action 3"], ["b", "orange", "red", "black"],
             title="Q-learning for the Robot MDP with gamma=0.9", xlabel="log 10 episodes", ylabel="Q-value",
             ylim=(0, 150))
 compareplot(np.log10(epsnum), [epslen],
-            ["Interactions"], ["b"],
+            ["Q-learning"], ["b"],
             title="Number of interactions with the environment", xlabel="log 10 episodes",
             ylabel="Interactions", ylim=(0, 201000 * 10))
 print(Q2)
@@ -114,13 +114,13 @@ for e in epsnum:
     Q3.append(Q3_temp)
     epslen.append(epslen_temp)
 
-compareplot(np.log10(epsnum), [Q0, Q1, Q2, Q3],
+compareplot_Q(np.log10(epsnum), [Q0, Q1, Q2, Q3],
             ["Action 0", "Action 1", "Action 2", "Action 3"], ["b", "orange", "red", "black"],
             title="Expert Q-learning for the Robot MDP with gamma=0.9", xlabel="log 10 episodes", ylabel="Q-value",
             ylim=(0, 150))
 
 compareplot(np.log10(epsnum), [epslen, np.array(epslen) + base],
-            ["Without pretraining", "With pretraining"], ["b", "navy"],
+            ["Without learning of the Expert model", "Including learning of the Expert model"], ["b", "black"],
             title="Number of interactions with the environment", xlabel="log 10 episodes",
             ylabel="Interactions", ylim=(0, 201000 * 10))
 print(Q2)
@@ -207,12 +207,12 @@ for e in epsnum:
     Q3.append(Q3_temp)
     epslen.append(epslen_temp)
 
-compareplot(np.log10(epsnum), [Q0, Q1, Q2, Q3],
+compareplot_Q(np.log10(epsnum), [Q0, Q1, Q2, Q3],
             ["Action 0", "Action 1", "Action 2", "Action 3"], ["b", "orange", "red", "black"],
             title="Multiexpert Q-learning for the Robot MDP with gamma=0.9", xlabel="log 10 episodes", ylabel="Q-value",
             ylim=(0, 150))
 compareplot(np.log10(epsnum), [epslen, np.array(epslen) + base],
-            ["Without pretraining", "With pretraining"], ["b", "navy"],
+            ["Without learning of the Expert models", "Including learning of the Expert models"], ["b", "black"],
             title="Number of interactions with the environment", xlabel="log 10 episodes",
             ylabel="Interactions", ylim=(0, 201000 * 10))
 
@@ -270,7 +270,7 @@ for e in epsnum:
     Q2.append(Q2_temp)
     Q3.append(Q3_temp)
 
-compareplot(np.log10(epsnum), [Q0, Q1, Q2, Q3],
+compareplot_Q(np.log10(epsnum), [Q0, Q1, Q2, Q3],
             ["Action 0", "Action 1", "Action 2", "Action 3"], ["b", "orange", "red", "black"],
             title="Expert Q-learning with suboptimal expert", xlabel="log 10 episodes", ylabel="Q-value", ylim=(0, 150))
 print(Q2)
@@ -312,7 +312,7 @@ for std in noise:
     Q2_temp = []
     Q3_temp = []
     for k in range(N):
-        Qs = Tabular_q(b, 1000, 4, episode_length=10, epsilon=0.25,
+        Qs = Tabular_q(b, int(10 ** 4.5), 4, episode_length=10, epsilon=0.25,
                        alpha=alpha, gamma=0.9, eval_interval=np.inf)
         start_values = Qs[(16, 0, 0)]
         Q0_temp.append(start_values[0])
@@ -324,7 +324,7 @@ for std in noise:
     Q2.append(Q2_temp)
     Q3.append(Q3_temp)
 
-compareplot(np.log10(noise), [Q0, Q1, Q2, Q3],
+compareplot_Q(np.log10(noise), [Q0, Q1, Q2, Q3],
             ["Action 0", "Action 1", "Action 2", "Action 3"], ["b", "orange", "red", "black"],
             title="Expert Q-learning for the Robot MDP with perturbed F", xlabel="log 10 std", ylabel="Q-value",
             ylim=(0, 150))
@@ -385,11 +385,16 @@ for e in epsnum:
 
 compareplot(np.log10(epsnum), [Diffs],
             ["Difference in W"], ["b"],
-            title="Q-learning vs SARSA for approximating F", xlabel="log 10 episodes", ylabel="Error", ylim=(0, 10))
-compareplot(np.log10(epsnum), [epslens],
-            ["Q-based pretraining"], ["b"],
+            title="Q-learning for approximating F", xlabel="log 10 episodes", ylabel=r'Error ($||\cdot||_{\infty}$)',
+            ylim=(0, 4))
+compareplot(np.log10(epsnum), [Diffs],
+            ["Q_learning"], ["b"],
+            title="Error in expert model with learnt policy (fixed goal)", xlabel="log 10 episodes",
+            ylabel=r'Error ($||\cdot||_{\infty}$)', ylim=(0, 4))
+compareplot(np.log10(epsnum), [epslens, [[2000000]for i in epslens]],
+            ["Learning expert policy for fixed goal","Q-learning(total)"], ["b","orange"],
             title="Number of interactions with the environment", xlabel="log 10 episodes",
-            ylabel="Interactions", ylim=(0, 201000 * 10))
+            ylabel="Interactions", ylim=(-10000, 201000 * 10))
 
 
 def alpha(v, t):
@@ -433,9 +438,14 @@ for e in epsnum:
 
 compareplot(np.log10(epsnum), [Diffs],
             ["Difference in W"], ["b"],
-            title="SARSA vs SARSA for approximating F", xlabel="log 10 episodes", ylabel="Error", ylim=(0, 10))
+            title="SARSA for approximating F", xlabel="log 10 episodes", ylabel=r'Error ($||\cdot||_{\infty}$)',
+            ylim=(0, 4))
+compareplot(np.log10(epsnum), [Diffs],
+            ["SARSA"], ["b"],
+            title="Error in expert model using a fixed policy", xlabel="log 10 episodes",
+            ylabel=r'Error ($||\cdot||_{\infty}$)', ylim=(0, 4))
 
-eps = [0.05, 0.1, 0.15, 0.2, 0.25, 0.5, 0.75, 1.0]
+eps = [0.05, 0.1, 0.15, 0.2, 0.25, 0.5, 0.75, 0.8, 0.85, 0.9 , 0.95 , 1.0]
 
 
 def alpha(v, t):
@@ -466,7 +476,7 @@ for e in eps:
     Q2.append(Q2_temp)
     Q3.append(Q3_temp)
 
-compareplot(eps, [Q0, Q1, Q2, Q3],
+compareplot_Q(eps, [Q0, Q1, Q2, Q3],
             ["Action 0", "Action 1", "Action 2", "Action 3"], ["b", "orange", "red", "black"],
             title="Q-learning for the Robot MDP with gamma=0.9", xlabel="epsilon", ylabel="Q-value", ylim=(0, 150))
 
@@ -493,7 +503,7 @@ F, W, B = Multi_Qs_to_F(policy_dict, Qs, [(-i, 0, 0) for i in range(17)])
 b = partial_env_B(env, [(i + 1, 0, 0) for i in range(16)], [(-i, 0, 0) for i in range(17)], F, 4, gamma=0.9,
                   entry_distribution=None)
 
-eps = [0.05, 0.1, 0.15, 0.2, 0.25, 0.5, 0.75, 1.0]
+eps = [0.05, 0.1, 0.15, 0.2, 0.25, 0.5, 0.75, 0.8, 0.85, 0.9 , 0.95 , 1.0]
 
 
 def alpha(v, t):
@@ -523,7 +533,7 @@ for e in eps:
     Q2.append(Q2_temp)
     Q3.append(Q3_temp)
 
-compareplot(eps, [Q0, Q1, Q2, Q3],
+compareplot_Q(eps, [Q0, Q1, Q2, Q3],
             ["Action 0", "Action 1", "Action 2", "Action 3"], ["b", "orange", "red", "black"],
             title="Expert Q-learning for the Robot MDP with gamma=0.9", xlabel="epsilon", ylabel="Q-value",
             ylim=(0, 150))
@@ -565,17 +575,18 @@ for e in epslength:
     Q3.append(Q3_temp)
     epslen.append(epslen_temp)
 
-compareplot(np.log10(np.array(epslength)), [Q0, Q1, Q2, Q3],
+compareplot_Q(np.log10(np.array(epslength)), [Q0, Q1, Q2, Q3],
             ["Action 0", "Action 1", "Action 2", "Action 3"], ["b", "orange", "red", "black"],
             title="Q-learning for the Robot MDP with gamma=0.9", xlabel="log10 episode length", ylabel="Q-value",
             ylim=(0, 150))
 compareplot(np.log10(np.array(epslength)), [epslen],
-            ["Interactions"], ["b"],
+            ["Q-learning"], ["b"],
             title="Number of interactions with the environment", xlabel="log 10 episode length",
             ylabel="Interactions", ylim=(0, 201000 * 10))
 
 print(Q2)
 
+#Optimal policy
 env = robot()
 total = 0
 steps = 0
@@ -618,3 +629,165 @@ for j in range(3000):
     total += rew * 0.9 ** steps
     steps += 1
 print(total)
+#Action 3 followed by by optimal policy
+total = 0
+steps = 0
+env.reset()
+obs, rew, done, _ = env.step(3)
+print(obs)
+total += rew * 0.9 ** steps
+steps += 1
+obs, rew, done, _ = env.step(2)
+print(obs)
+total += rew * 0.9 ** steps
+steps += 1
+obs, rew, done, _ = env.step(2)
+print(obs)
+total += rew * 0.9 ** steps
+steps += 1
+obs, rew, done, _ = env.step(2)
+print(obs)
+total += rew * 0.9 ** steps
+steps += 1
+obs, rew, done, _ = env.step(2)
+print(obs)
+total += rew * 0.9 ** steps
+steps += 1
+for j in range(3000):
+    obs, rew, done, _ = env.step(3)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(3)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(3)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(3)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(2)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(2)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(2)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(2)
+    total += rew * 0.9 ** steps
+    steps += 1
+print(total)
+
+#Action 0 followed by by optimal policy
+total = 0
+steps = 0
+env.reset()
+obs, rew, done, _ = env.step(0)
+print(obs)
+total += rew * 0.9 ** steps
+steps += 1
+obs, rew, done, _ = env.step(2)
+print(obs)
+total += rew * 0.9 ** steps
+steps += 1
+obs, rew, done, _ = env.step(2)
+print(obs)
+total += rew * 0.9 ** steps
+steps += 1
+obs, rew, done, _ = env.step(2)
+print(obs)
+total += rew * 0.9 ** steps
+steps += 1
+for j in range(3000):
+    obs, rew, done, _ = env.step(3)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(3)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(3)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(3)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(2)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(2)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(2)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(2)
+    total += rew * 0.9 ** steps
+    steps += 1
+print(total)
+
+#Action 1 followed by by optimal policy
+total = 0
+steps = 0
+env.reset()
+obs, rew, done, _ = env.step(1)
+print(obs)
+total += rew * 0.9 ** steps
+steps += 1
+obs, rew, done, _ = env.step(3)
+print(obs)
+total += rew * 0.9 ** steps
+steps += 1
+obs, rew, done, _ = env.step(3)
+print(obs)
+total += rew * 0.9 ** steps
+steps += 1
+obs, rew, done, _ = env.step(2)
+print(obs)
+total += rew * 0.9 ** steps
+steps += 1
+obs, rew, done, _ = env.step(2)
+print(obs)
+total += rew * 0.9 ** steps
+steps += 1
+obs, rew, done, _ = env.step(2)
+print(obs)
+total += rew * 0.9 ** steps
+steps += 1
+obs, rew, done, _ = env.step(2)
+print(obs)
+total += rew * 0.9 ** steps
+steps += 1
+for j in range(3000):
+    obs, rew, done, _ = env.step(3)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(3)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(3)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(3)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(2)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(2)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(2)
+    total += rew * 0.9 ** steps
+    steps += 1
+    obs, rew, done, _ = env.step(2)
+    total += rew * 0.9 ** steps
+    steps += 1
+print(total)
+
+#Qs:
+#0: 128.9996538917452
+#1: 93.31174768708226
+#2: 142.2218376574947
+#3: 115.1996885025707

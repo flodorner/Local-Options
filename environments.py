@@ -102,7 +102,7 @@ class robot():
                 self.state = (self.state[0] - 5, self.state[1] + 1, self.state[2])
                 if self.state[1] > 1:
                     rew += 10
-                    self.state = (self.state[0], self.state[1], self.state[2])
+                    self.state = (self.state[0], self.state[1] - 1, self.state[2])
             elif self.state[0] > 0:
                 None
             else:
