@@ -1,12 +1,14 @@
-import random
 import numpy as np
 
 
 def generate_rewards(n, actions):
+    #generates a reward model by uniformly sampling rewards for transitions in an n-dimensional state space.
     return np.random.uniform(size=(n, actions, n))
 
 
 def generate_transitions(n, actions):
+    # generates a transition model by uniformly sampling n-dimensional vectors for each action in every one of n states
+    # and normalizing.
     M = np.zeros((actions, n, n))
     for act in range(actions):
         for start in range(n):
@@ -17,6 +19,8 @@ def generate_transitions(n, actions):
 
 
 class MDP:
+    # Implements and MDP from a transition model M, a reward model R and a start distribution ps. If ps is a number,
+    # this is interpreted as a delta-distribution supported at that number.
     def __init__(self, M, R, ps=0):
         self.episodes = 0
         self.M = M
@@ -67,6 +71,7 @@ class MDP:
 
 
 def random_MDP(n, acts, B_start):
+    #Generates a random Mdp and calculates the option model for a uniform policy on the states between 0 and B_start-1
     M = generate_transitions(n, acts)
     R = generate_rewards(n, acts)
     env = MDP(M, R)
@@ -75,6 +80,7 @@ def random_MDP(n, acts, B_start):
 
 
 class robot():
+    #The robot MDP (see readme for a graphical description)
     def __init__(self):
         self.state = (16, 0, 0)
         self.episodes = 0

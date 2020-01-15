@@ -10,6 +10,13 @@ from functions import one_hot
 def Tabular_q(env, episodes, num_act, episode_length=np.inf, epsilon=0.05,
               alpha=lambda v, t: 0.1, gamma=0.99, eval_interval=np.inf, Qs=None, init=0, soft_end=False,
               Q_trafo=lambda x: x):
+    # Q-lerning. Returns Q-values as a dict.
+    # Alpha is a map from visit count and the elapsed time to the learning rate. eval_interval determines
+    # after how many episodes the greedy policy is evaluated and the return printed. Qs allows for the initialization
+    # of Q-values with a dictionary. If Qs is None, init allows for constant initialization at the value init.
+    # soft end determines, how terminal states are treated. If soft_end is true, transitions to terminal states still
+    # update on the Q-value of the next state. Q_trafo is the scalarization function that determines the action
+    # selection in the multi-objective case.
     vs = {}
     if Qs is None:
         Qs = {}
@@ -82,6 +89,11 @@ def Tabular_q(env, episodes, num_act, episode_length=np.inf, epsilon=0.05,
 
 def SARSA(env, episodes, num_act, policy_agent, episode_length=np.inf, epsilon=0.05,
           alpha=lambda v, t: 0.1, gamma=0.99, Qs=None, init=0, soft_end=False):
+    # SARSA. Returns Q-values as a dict.
+    # Alpha is a map from visit count and the elapsed time to the learning rate. Qs allows for the initialization
+    # of Q-values with a dictionary. If Qs is None, init allows for constant initialization at the value init.
+    # soft end determines, how terminal states are treated. If soft_end is true, transitions to terminal states still
+    # update on the Q-value of the next state.
     vs = {}
     if Qs is None:
         Qs = {}
@@ -134,6 +146,11 @@ def SARSA(env, episodes, num_act, policy_agent, episode_length=np.inf, epsilon=0
 
 def Tdzero(env, episodes, num_act, policy_agent, episode_length=np.inf, epsilon=0.05,
            alpha=lambda v, t: 0.1, gamma=0.99, Vs=None, init=0, soft_end=False):
+    # Td(0). Returns V-values as a dict.
+    # Alpha is a map from visit count and the elapsed time to the learning rate. Vs allows for the initialization
+    # of V-values with a dictionary. If Vs is None, init allows for constant initialization at the value init.
+    # soft end determines, how terminal states are treated. If soft_end is true, transitions to terminal states still
+    # update on the Q-value of the next state.
     vs = {}
     if Vs is None:
         Vs = {}
@@ -184,11 +201,15 @@ def Tdzero(env, episodes, num_act, policy_agent, episode_length=np.inf, epsilon=
 
 def get_F(env, episodes, num_act, policy, entries, exits, c=1, episode_length=np.inf, epsilon=0.05,
           alpha=lambda x, y: 0.1, gamma=0.99, evaluation="SARSA", re_evaluation_factor=0.25):
+    # Returns the affinely linear operator F (the local option model) for a policy on a subset of the state space
+    # defined by its entry and exits states under that policy, using the indirect method.
+    # If evaluation is "SARSA", SARSA is used to approximate F, else td(0). c determines the bonus reward for exiting
+    # that is used to calculate F. The larger c, the more accurate the method. re_evaluation_factor specifies, how many
+    # episodes are to spend on learning with bonus rewards after the initialization without bonus rewards.
+
     if isinstance(next(iter(policy.values())), int):
         policy = {key: one_hot(policy[key], num_act) for key in policy}
-
         # entries to A, exits out of A
-
     B = np.zeros(len(entries))
     W = np.zeros((len(entries), len(exits)))
     x = np.zeros(len(exits))
@@ -245,6 +266,9 @@ def nested_key_else_zero(d, i, j):
 
 
 def learn_matrices(env, episodes, policy_agent, entries, exits, episode_length=np.inf, gamma=0.99):
+    # Returns the affinely linear operator F (the local option model) for a policy on a subset of the state space
+    # defined by its entry and exits states under that policy, by approximating a transition model and direct
+    # calculation.
     env_x = partial_env_A(env, entries, exits, values=np.zeros(len(exits)))
     reward_dict = {}
     transition_dict = {}
