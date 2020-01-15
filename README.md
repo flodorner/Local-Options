@@ -9,4 +9,10 @@ that work with vectorized rewards (action selection is handled by scalarization 
 models, either by solving a local MDP for different rewards and solving the resulting system of equations, or by an approach based on learning 
 the transition model. 
 
-environments.py contains the robot MDP, as well as a generic MDP class, that implements a transition and reward model. There are also functions to randomly generate an MDP. 
+environments.py contains a generic MDP class, that implements a transition and reward model. There are also functions to randomly generate an MDP and the robot MDP:
+
+![alt text](https://github.com/flodorner/Local-Options/blob/master/images/Robot.jpg "robot MDP") 
+
+wrapper.py contains wrappers that use a base MDP and turn it into a local MDP on parts of the state space. 
+
+Test.py contains
