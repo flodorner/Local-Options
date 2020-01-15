@@ -3,10 +3,12 @@ import random
 
 
 def rand_argmax(x):
+    # Returns an index that is randomly sampled from the indices with maximial entries in an array.
     return random.choice(np.argwhere(x == np.max(x)))[0]
 
 
 def Qstar_to_values(Qs):
+    #Takes a dict of Q* values and returns a dict of V* values.
     out = {}
     for key in Qs:
         out[key] = np.max(Qs[key])
@@ -14,6 +16,7 @@ def Qstar_to_values(Qs):
 
 
 def Qs_to_policy(Qs, Q_trafo=lambda x: x):
+    # Takes a dict of Q values and returns the greedy policy as dict
     policy = {}
     for key in Qs:
         policy[key] = np.argmax(Q_trafo(Qs[key]))
@@ -21,15 +24,13 @@ def Qs_to_policy(Qs, Q_trafo=lambda x: x):
 
 
 def one_hot(i, n):
+    # Takes a number i and a length n and returns the one-hot encoding for the number of the length
     a = np.zeros(n)
     a[i] = 1
     return a
 
-
-# Output: value map maxQs, i=> value of i
-
 def Multi_Qs_to_F(policy, Qs, exits):
-    # outputs: entries to S_{1)
+    # Returns the operator F, given a policy, Q-values and a list of exit states.
     coeffs = []
     for entry in exits:
         try:
@@ -51,7 +52,7 @@ def Multi_Qs_to_F(policy, Qs, exits):
 
 
 def Multi_Vs_to_F(policy, Vs, exits):
-    # outputs: entries to S_{1)
+    # Returns the operator F, given a policy, V-values and a list of exit states.
     coeffs = []
     for entry in exits:
         V = np.array(Vs[entry])

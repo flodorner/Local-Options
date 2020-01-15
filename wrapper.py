@@ -3,7 +3,12 @@ import random
 
 
 class partial_env_A:
-    def __init__(self, env, entries, exits, values=None, gamma=0.99, track_exits=False):
+    def __init__(self, env, entries, exits, values=None, gamma=0.99, track_exits=False, randomstart=True):
+        # Implements a local MDP with single on the part of the state space confined by entries and exits.
+        # values specifies the additional rewards that are obtained by reaching each of the exit states.
+        # If track_exits is True, the distribution of exits is saved as a parameter and can be used to initialize
+        # the complementary local MDP on the rest of the state space. If randomstart is True, the start state is sampled
+        # from the entries. This requires that the original MDP can be reset to this state.
         self.env = env
 
         self.entries = entries
@@ -22,7 +27,8 @@ class partial_env_A:
 
     def reset(self):
         self.env.reset()
-        self.env.state = random.choice(self.entries)
+        if self.randomstart:
+            self.env.state = random.choice(self.entries)
         if self.track_exits is True:
             self.last_entry = self.env.state
         return self.env.state
@@ -45,6 +51,11 @@ class partial_env_A:
 
 class partial_env_A_multireward:
     def __init__(self, env, entries, exits, track_exits=False, randomstart=True, gamma=0.99):
+        # Implements a local MDP with multiple rewards on the part of the state space confined by entries and exits.
+        # The first reward is the original one and the other rewards are proxy rewards given for reaching the respective
+        # exits. If track_exits is True, the distribution of exits is saved as a parameter and can be used to initialize
+        # the complementary local MDP on the rest of the state space. If randomstart is True, the start state is sampled
+        # from the entries. This requires that the original MDP can be reset to this state.
         self.env = env
 
         self.entries = entries
@@ -84,10 +95,12 @@ class partial_env_A_multireward:
 
 class partial_env_B:
     def __init__(self, env, entries, exits, value_map, actions, gamma=0.99, entry_distribution=None):
+        # Implements a local MDP on the part of the state space confined by entries and exits.
         # Value map gets the Qs for the entry states and an index i and returns the ith entry of
-        # the operator F applied to the entry Qs.
-        # Theoretically, this might be doable by a neural net
-        # that maps states to affine functions and applies them to the Qs, instead.
+        # the operator F applied to the entry Qs and is used to give bonus rewards for transitions to the exits.
+        # Theoretically, this might be doable by a neural net that maps states to affine functions and applies
+        # them to the Qs, instead. entry_distribution can be used to define a different start distribution than in the
+        # original MDP. This is necessary, if the original MDP starts outside of the treated part.
 
         self.env = env
 

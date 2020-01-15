@@ -14,6 +14,8 @@ def mean_confidence_interval(data, confidence=0.95):
 
 def compareplot(axis, arrays, names, colors, title="", xlabel="x",
                 ylabel="y", ylim=(0, 10), save=False):
+    # gets an array as x_axis and a list of arrays of arrays as entries. Calculates the 95% confidence interval assuming
+    # normality over the second axis of the array and plots all entries with confidence bands.
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     if ylim is not None:
@@ -40,6 +42,9 @@ def compareplot(axis, arrays, names, colors, title="", xlabel="x",
 
 def compareplot_Q(axis, arrays, names, colors, title="", xlabel="x",
                 ylabel="y", ylim=(0, 10), save=False):
+    # gets an array as x_axis and a list of arrays of arrays as entries. Calculates the 95% confidence interval assuming
+    # normality over the second axis of the array and plots all entries with confidence bands.
+    # Also plots the true Q-values for the initial state of the robot MDP.
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     if ylim is not None:
